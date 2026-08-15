@@ -1,0 +1,24 @@
+node_modules
+dist
+session
+data
+nexus.json
+nexus.json.tmp
+nexus.lock
+.env
+
+# NOTE: cookies.txt is deliberately NOT ignored. It's baked into the image so
+# hosted deployments (which build the image and have no bind mount) still have
+# YouTube cookies for yt-dlp. Consequence: the image contains a live Google
+# session — never push it to a public registry.
+
+*.log
+.git
+.gitignore
+.github
+.claude
+README.md
+DOCKER.md
+SETUP.md
+LICENSE
+cookies.txt.example

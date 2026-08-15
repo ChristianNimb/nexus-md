@@ -1,0 +1,18 @@
+# Normalize line endings so a Windows checkout doesn't produce CRLF files that
+# break inside the Linux container.
+* text=auto eol=lf
+
+# These are executed by `sh` in the image — CRLF makes them fail with obscure
+# "not found" / "\r" errors. Must stay LF regardless of platform.
+*.sh text eol=lf
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf
+
+# Binary assets: never touch.
+*.png binary
+*.jpg binary
+*.webp binary
+*.mp4 binary
+*.webm binary
+*.onnx binary
+*.tgz binary

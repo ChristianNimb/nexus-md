@@ -1,0 +1,38 @@
+# Local Cobalt instance for Nexus-MD social-media downloads.
+# Run from this folder:  docker compose up -d
+# Then set in the bot's .env:  COBALT_API_URL=http://localhost:9000/
+#
+# This config is for LOCAL/personal use (not exposed to the internet). If you
+# ever make it public, read cobalt's docs on protecting an instance first.
+
+services:
+  cobalt:
+    image: ghcr.io/imputnet/cobalt:11
+    init: true
+    read_only: true
+    restart: unless-stopped
+    container_name: cobalt
+
+    ports:
+      - 9000:9000/tcp
+
+    environment:
+      # For local use this is fine as-is. Must be a valid URL or tunnels break.
+      API_URL: "http://localhost:9000/"
+      # Uncomment to use cookies for sites that need login to view public content:
+      # COOKIE_PATH: "/cookies.json"
+
+    labels:
+      - com.centurylinklabs.watchtower.scope=cobalt
+
+    # Uncomment together with COOKIE_PATH above:
+    # volumes:
+    #   - ./cookies.json:/cookies.json
+
+  # Keeps the cobalt image auto-updated (it changes often as sites change).
+  watchtower:
+    image: ghcr.io/containrrr/watchtower
+    restart: unless-stopped
+    command: --cleanup --scope cobalt --interval 900 --include-restarting
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

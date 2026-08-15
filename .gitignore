@@ -1,0 +1,31 @@
+node_modules/
+dist/
+
+# Runtime state — WhatsApp login, JSON store, sticker library, menu media.
+# These are per-install and must never be shared.
+session/
+data/
+nexus.json
+nexus.json.tmp
+nexus.lock
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Secrets. cookies.txt holds live Google/YouTube session cookies — committing it
+# hands over the account. Copy cookies.txt.example and fill it in locally.
+.env
+.env.*
+!.env.example
+cookies.txt
+cobalt/cookies.json
+
+*.log
+
+# Editor / tooling local state
+.claude/settings.local.json
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

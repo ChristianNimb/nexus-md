@@ -1,0 +1,66 @@
+services:
+  nexus:
+    build: .
+    container_name: nexus-md
+    restart: unless-stopped
+
+    # Load PREFIX, MODE, OWNERS, AI_* etc. from your .env file.
+    env_file: .env
+
+    # Website + browser linking panel:
+    #   http://localhost:3000/       the site
+    #   http://localhost:3000/link   scan the QR / get a pairing code
+    # Change the host side (left of the colon) if 3000 is taken. The panel is
+    # password-gated by NEXUS_WEB_PASSWORD — set it before exposing this beyond
+    # your own machine.
+    ports:
+      - "3000:3000"
+
+    environment:
+      # Storage locations (land in the mounted volumes below).
+      SESSION_DIR: session
+      DB_PATH: data/nexus.json
+      # Reach Cobalt by its service name on the shared compose network.
+      # (localhost would point at THIS container, not Cobalt.)
+      COBALT_API_URL: http://cobalt:9000/
+      # YouTube cookies for yt-dlp, to defeat "sign in to confirm you're not a
+      # bot" on blocked hosts. Points at the ./cookies.txt mounted below.
+      YTDLP_COOKIES: /app/cookies.txt
+
+    # Persist the WhatsApp login and the JSON store across container restarts.
+    volumes:
+      - ./session:/app/session
+      - ./data:/app/data
+      - ./cookies.txt:/app/cookies.txt:ro
+      # Live source: the bot runs TypeScript directly (tsx), so with src mounted,
+      # code changes load on a plain `docker compose restart nexus` — no rebuild
+      # needed. (Only rebuild --build when package.json/deps or the Dockerfile change.)
+      - ./src:/app/src
+
+    # Keep a TTY so the QR code renders correctly in `docker compose logs`.
+    stdin_open: true
+    tty: true
+
+    depends_on:
+      - cobalt
+
+  # Cobalt powers social-media downloads (.dl / autodl for TikTok, IG, X, ...).
+  # YouTube works without it. Reachable in-network at http://cobalt:9000/.
+  cobalt:
+    image: ghcr.io/imputnet/cobalt:11
+    init: true
+    read_only: true
+    restart: unless-stopped
+    container_name: cobalt
+    environment:
+      # Must match how other containers reach it, so tunnel links resolve.
+      API_URL: "http://cobalt:9000/"
+      # Uncomment to use cookies for login-gated content:
+      # COOKIE_PATH: "/cookies.json"
+    # volumes:
+    #   - ./cobalt/cookies.json:/cookies.json
+  # (watchtower auto-updater removed — its Docker API client was too old for your
+  #  daemon, so it just crash-looped and spammed the logs. To update Cobalt now,
+  #  run:  docker compose pull cobalt && docker compose up -d cobalt )
+
+      

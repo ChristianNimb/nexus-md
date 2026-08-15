@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": false,
+    "sourceMap": true
+  },
+  "include": ["src/**/*.ts"],
+  // src/web/ui is the React app. It is a separate compilation unit with its own
+  // tsconfig and its own bundler (esbuild, see src/web/build.mjs), and it needs
+  // the React types — which the bot itself has no use for. Keeping it out means
+  // `npm run typecheck` and `npm run build` stay about the BOT.
+  "exclude": ["node_modules", "dist", "src/web/ui"]
+}

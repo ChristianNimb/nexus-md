@@ -1,0 +1,16 @@
+{
+  "//": "The React UI. Built by esbuild (src/web/build.mjs), never by tsc — this file exists so editors and `npx tsc -p src/web/ui` can typecheck it. Needs the devDependencies installed.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "noEmit": true
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
+}

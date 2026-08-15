@@ -1,0 +1,1301 @@
+/* =========================================================================
+   Nexus-MD — design system
+   Dark, restrained, one accent.
+   No web fonts, no CDN — the linking panel must work on a LAN with no internet.
+
+   GREEN IS FOR ACTION AND LIVE STATE. Primary buttons, the online dot, the
+   active failover tier, hover. It used to be on the eyebrows, every card icon,
+   every command chip, the step numbers and inline code as well — and an accent
+   that is on everything cannot emphasise anything. Structure is neutral now;
+   green marks the handful of things that are actually live or clickable.
+   ========================================================================= */
+
+:root {
+  --bg: #05070a;
+  --bg-2: #080c12;
+  --panel: rgba(255, 255, 255, 0.028);
+  --panel-2: rgba(255, 255, 255, 0.05);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.14);
+
+  --text: #e9eef5;
+  --muted: #8b98a9;
+  --dim: #5c6878;
+
+  --green: #25d366;
+  --green-soft: #4ade80;
+  --cyan: #22d3ee;
+  --amber: #fbbf24;
+  --red: #f87171;
+
+  --glow: 0 0 0 1px rgba(37, 211, 102, 0.26), 0 8px 40px -8px rgba(37, 211, 102, 0.32);
+  --radius: 16px;
+  --radius-lg: 22px;
+
+  /* Spacing rhythm. Sections used to sit 8rem apart while the cards inside them
+     were 1rem apart — a 1:8 ratio, so the page read as tight clumps floating in
+     voids with nothing tying them together. Closer to 1:4 and the sections read
+     as one document. */
+  --gap-card: 1.35rem;
+  --gap-section: 3.25rem;
+
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Steps up on big displays. A fixed 1160px leaves a 2560px monitor looking
+     like the page is stranded in the middle of the screen. */
+  --maxw: 1160px;
+  --gutter: 2.5rem;
+}
+@media (min-width: 1500px) { :root { --maxw: 1320px; --gutter: 3.5rem; } }
+@media (min-width: 1800px) { :root { --maxw: 1440px; --gutter: 4rem; } }
+@media (min-width: 2200px) { :root { --maxw: 1560px; } }
+/* Everything is sized in rem, so stepping the root size scales the whole page
+   together — type, padding, radii — instead of leaving it laptop-sized. */
+@media (min-width: 1500px) { body { font-size: 17px; } }
+@media (min-width: 1900px) { body { font-size: 18px; } }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+/* The nav is sticky and 68px tall, so an anchor jump used to park the target
+   section's heading underneath it. */
+section[id] { scroll-margin-top: 5rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  color: #cbd7e4;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  padding: 0.08em 0.36em;
+  border-radius: 5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- ambient background ---------------------------------------------------
+ * Replaces the 3.2 MB looping video. See Backdrop.tsx for why it went.
+ *
+ * Fixed, so scrolling never repaints it, and weighted toward the top of the
+ * viewport so it sets up the hero rather than competing with every section on
+ * the way down.
+ */
+.bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 55%, var(--bg) 100%);
+}
+
+/* The aurora fields.
+ *
+ * A radial gradient falls off softly on its own, so there is no `filter: blur()`
+ * anywhere here — a blur on three large elements has to be re-rasterised and
+ * would repeat the video's mistake in a cheaper-looking costume. Only transform
+ * animates, which keeps each field on the compositor.
+ *
+ * The animations are deliberately long. At 8 seconds this reads as a screensaver;
+ * at 40 it reads as light that happens to be moving. */
+.aurora {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+  animation: drift 38s ease-in-out infinite alternate;
+}
+.aurora.a1 {
+  width: 60rem; height: 42rem;
+  left: -14rem; top: -16rem;
+  background: radial-gradient(closest-side, rgba(37, 211, 102, 0.17), rgba(37, 211, 102, 0.05) 55%, transparent 72%);
+}
+.aurora.a2 {
+  width: 48rem; height: 40rem;
+  right: -12rem; top: -8rem;
+  background: radial-gradient(closest-side, rgba(34, 211, 238, 0.14), rgba(34, 211, 238, 0.04) 55%, transparent 72%);
+  animation-duration: 46s;
+  animation-delay: -14s;
+}
+.aurora.a3 {
+  width: 52rem; height: 34rem;
+  left: 24%; top: 26%;
+  background: radial-gradient(closest-side, rgba(16, 185, 129, 0.1), transparent 70%);
+  animation-duration: 54s;
+  animation-delay: -26s;
+}
+@keyframes drift {
+  from { transform: translate3d(-2rem, -1rem, 0) scale(1); }
+  to { transform: translate3d(3rem, 2.5rem, 0) scale(1.14); }
+}
+
+/* The faint grid, masked out well before the edges so it never ends on a line.
+   Kept under the threshold where it starts reading as graph paper — at 0.03
+   across a wide mask it drew squares behind the headline and fought the chat
+   panel for attention. */
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.019) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.019) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(80% 52% at 46% 2%, #000 0%, rgba(0, 0, 0, 0.4) 42%, transparent 74%);
+  -webkit-mask-image: radial-gradient(80% 52% at 46% 2%, #000 0%, rgba(0, 0, 0, 0.4) 42%, transparent 74%);
+}
+
+/* A whisper of grain.
+ *
+ * Large flat gradients on a dark page band visibly on 8-bit displays — you see
+ * the aurora as a set of rings rather than a wash. Noise breaks the steps up,
+ * which is why film grain survives into digital grading. The SVG carries an
+ * explicit 200x200 size so it rasterises once at tile size and repeats, rather
+ * than having the filter evaluated across the whole viewport. */
+.bg-grain {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  /* Plain opacity, NOT `mix-blend-mode: overlay`. Overlay leaves near-black
+     almost exactly where it found it, so on this page the blend mode was doing
+     nothing at all. Compositing the noise straight on lifts the blacks by about
+     four levels, which is all it takes to break the banding up. */
+  opacity: 0.035;
+  pointer-events: none;
+}
+
+/* Content below the fold sits on clean dark rather than on drifting colour. */
+.bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, transparent 34%, rgba(5, 7, 10, 0.72) 72%, var(--bg) 100%);
+}
+
+/* --- the pairing panel's clip (see Backdrop.tsx) --------------------------
+ * A centred PORTRAIT band, not a full-bleed cover. The source is 464px wide, so
+ * stretching it across a desktop viewport would upscale it past three times and
+ * crop away most of its height — which is how the old landing-page clip ended
+ * up looking like a smear. Held near the panel's own width it stays close to
+ * its native size.
+ *
+ * The panel above it is glass (`backdrop-filter`), so this is what it blurs. */
+.bg-video {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  /* Comfortably wider than the 560px panel. Matched to the panel it was 80%
+     hidden behind it, and the clip only registered as a faint smear at the
+     edges. 2x its own width is as far as it can be pushed before the upscale
+     starts to show. */
+  width: min(100vw, 58rem);
+  transform: translateX(-50%);
+  overflow: hidden;
+  background-size: cover;
+  background-position: center 35%;
+  opacity: 0.8;
+  /* One radial mask rather than crossed linear ones: `mask-composite` is still
+     inconsistent across engines, and a single gradient needs no compositing. */
+  mask-image: radial-gradient(68% 64% at 50% 44%, #000 0%, rgba(0, 0, 0, 0.8) 58%, transparent 88%);
+  -webkit-mask-image: radial-gradient(68% 64% at 50% 44%, #000 0%, rgba(0, 0, 0, 0.8) 58%, transparent 88%);
+}
+.bg-video video {
+  width: 100%;
+  height: 100%;
+  /* The node graph lives in the upper half of the frame; dead-centre cover
+     cropped the top of it away. */
+  object-fit: cover;
+  object-position: center 35%;
+  display: block;
+}
+/* Top-to-bottom darkening would bury the clip in its own lower two-thirds. A
+   vignette keeps the middle — where the panel sits — legible instead. */
+.bg.has-video::after {
+  background: radial-gradient(82% 70% at 50% 44%, transparent 0%, rgba(5, 7, 10, 0.35) 66%, var(--bg) 100%);
+}
+/* Glass, so the clip reads THROUGH the card rather than only around it. The
+   18px backdrop blur keeps the form legible over moving light. */
+.has-video ~ .panel-page .panel { background: rgba(10, 14, 20, 0.66); }
+@media (max-width: 620px) { .bg-video { opacity: 0.6; } }
+
+@media (max-width: 700px) {
+  /* A narrow viewport gives the fields proportionally more room, which is how
+     the old video ended up reading as a smudge. */
+  .aurora { opacity: 0.6; }
+}
+
+/* --- layout -------------------------------------------------------------- */
+.wrap { width: min(100% - var(--gutter), var(--maxw)); margin-inline: auto; }
+section { padding: var(--gap-section) 0; }
+/* Let the browser skip layout and paint for sections that are off screen. The
+   intrinsic size keeps the scrollbar honest so it does not jump while reading. */
+section:not(.hero):not(.tight) { content-visibility: auto; contain-intrinsic-size: auto 700px; }
+section.tight { padding-top: 0; padding-bottom: var(--gap-section); }
+@media (max-width: 700px) { :root { --gap-section: 2.5rem; } }
+
+/* Alternating bands. Four sections separated by nothing but air read as four
+   unrelated pages; a barely-there surface change and a hairline give the page
+   a spine without drawing a single hard line through the middle of it. */
+.band {
+  position: relative;
+  background: rgba(255, 255, 255, 0.014);
+  border-block: 1px solid var(--line);
+}
+
+/* --- reveal on scroll ---------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.reveal.in { opacity: 1; transform: none; }
+
+.fade-in { animation: fadeIn 0.45s var(--ease) both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* --- nav ----------------------------------------------------------------- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: background 0.3s, border-color 0.3s, backdrop-filter 0.3s;
+  border-bottom: 1px solid transparent;
+}
+.nav.solid {
+  background: rgba(5, 7, 10, 0.74);
+  backdrop-filter: blur(10px);
+  border-bottom-color: var(--line);
+}
+/* The bar itself, NOT `.nav .wrap` — that also matches the wrap inside the
+   mobile panel, which then inherited `align-items: center` (links centred) and
+   `height: 68px` (panel clipped to one row). */
+.nav-bar { display: flex; align-items: center; gap: 1.5rem; height: 68px; position: relative; }
+.nav-links { display: flex; gap: 1.6rem; margin-left: auto; }
+.nav-links a {
+  position: relative;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.92rem;
+  transition: color 0.18s;
+}
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -5px;
+  height: 1.5px; width: 100%;
+  background: var(--green);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s var(--ease);
+}
+.nav-links a:hover,
+.nav-links a.active { color: var(--text); }
+.nav-links a:hover::after,
+.nav-links a.active::after { transform: scaleX(1); transform-origin: left; }
+/* The active link's underline is dimmer than a hovered one — it reports where
+   you are, it is not inviting a click. */
+.nav-links a.active::after { background: rgba(37, 211, 102, 0.55); }
+
+/* Reading progress. `--p` is written by useScrollProgress on a rAF, so this
+   only ever costs a compositor transform. */
+.nav-progress {
+  position: absolute;
+  bottom: -1px;
+  /* Breaks out of the centred `.wrap` it lives in to span the viewport. Held to
+     the content width it started partway across the screen and read as a
+     rendering fault rather than a progress bar. */
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  height: 2px;
+  background: linear-gradient(90deg, var(--green), var(--cyan));
+  transform: scaleX(var(--p, 0));
+  transform-origin: left;
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+.nav.solid .nav-progress { opacity: 0.85; }
+
+/* --- mobile menu ---------------------------------------------------------
+ * Below 780px the nav links were simply hidden and below 560px so was the CTA,
+ * which left a phone with a header containing a logo and nothing else. */
+.nav-toggle {
+  display: none;
+  margin-left: auto;
+  width: 40px; height: 40px;
+  padding: 0;
+  border: 1px solid var(--line-2);
+  border-radius: 11px;
+  background: var(--panel);
+  cursor: pointer;
+  position: relative;
+}
+.nav-toggle span {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 17px; height: 1.6px;
+  margin-left: -8.5px;
+  border-radius: 2px;
+  background: var(--text);
+  transition: transform 0.28s var(--ease), opacity 0.2s;
+}
+.nav-toggle span:first-child { transform: translateY(-4px); }
+.nav-toggle span:last-child { transform: translateY(3px); }
+.nav-toggle.open span:first-child { transform: rotate(45deg); }
+.nav-toggle.open span:last-child { transform: rotate(-45deg); }
+
+.nav-panel {
+  overflow: hidden;
+  max-height: 0;
+  border-top: 1px solid transparent;
+  background: rgba(5, 7, 10, 0.94);
+  backdrop-filter: blur(10px);
+  transition: max-height 0.34s var(--ease), border-color 0.34s;
+}
+.nav-panel.open { max-height: 22rem; border-top-color: var(--line); }
+.nav-panel .wrap { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.9rem 0 1.2rem; }
+.nav-panel a:not(.btn) {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.nav-panel a:not(.btn):hover { color: var(--text); }
+.nav-panel .btn { margin-top: 0.7rem; }
+
+@media (max-width: 780px) {
+  .nav-links { display: none; }
+  /* Qualified with `.nav` deliberately: `.btn { display: inline-flex }` is
+     declared later in this file, so a bare `.nav-cta` loses on source order and
+     the button stays visible next to the hamburger. */
+  .nav .nav-cta { display: none; }
+  .nav-toggle { display: block; }
+}
+@media (min-width: 781px) { .nav-panel { display: none; } }
+
+/* `gap` here used to sit between the "Nexus" text node and the "-MD" span as
+   well as after the mark, so the logo rendered as "Nexus -MD". */
+.brand {
+  display: flex; align-items: center; gap: 0.65rem;
+  font-weight: 650; letter-spacing: -0.02em;
+  text-decoration: none; color: var(--text);
+  white-space: nowrap;
+}
+.brand .dim { color: var(--dim); }
+.brand .mark {
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  border-radius: 9px;
+  background: linear-gradient(140deg, var(--green), #0f9d58);
+  box-shadow: 0 4px 18px -4px rgba(37, 211, 102, 0.6);
+  font-weight: 800; font-size: 0.95rem; color: #04140d;
+}
+.panel-brand { margin-bottom: 1.4rem; }
+
+/* --- type ---------------------------------------------------------------- */
+h1, h2, h3 { line-height: 1.12; letter-spacing: -0.03em; margin: 0 0 0.6rem; font-weight: 680; }
+/* Sized so "The WhatsApp bot" stays on ONE line in the hero's half-width
+   column; balance keeps the second line from leaving an orphan word. */
+h1 { font-size: clamp(2.2rem, 4vw, 4rem); text-wrap: balance; }
+h2 { font-size: clamp(1.9rem, 3.6vw, 2.9rem); text-wrap: balance; }
+h3 { font-size: 1.08rem; letter-spacing: -0.015em; }
+p { margin: 0 0 1rem; color: var(--muted); }
+
+h1 .l1, h1 .l2 { display: block; animation: riseIn 0.85s var(--ease) both; }
+h1 .l2 { animation-delay: 0.12s; }
+@keyframes riseIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+/* Was an animated gradient sweep. A headline that shimmers on a loop reads as
+   a template; the emphasis is stronger when it just sits there. */
+.accent { color: var(--green-soft); }
+
+/* Was a green pill. Four green pills down the page turned a label into a
+   decoration and spent the accent before the buttons got to use it — a short
+   rule and small caps says "section" just as clearly. */
+.eyebrow {
+  display: flex; align-items: center; gap: 0.7rem;
+  font-size: 0.74rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 0.9rem;
+}
+/* Draws itself in as the section arrives. */
+.eyebrow::before {
+  content: "";
+  width: 22px; height: 1.5px;
+  border-radius: 2px;
+  background: var(--green);
+  flex: none;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s var(--ease) 0.15s;
+}
+.reveal.in .eyebrow::before { transform: scaleX(1); }
+.lead { font-size: 1.1rem; max-width: 58ch; }
+.lead strong { color: var(--text); }
+.hint { font-size: 0.83rem; color: var(--dim); margin: 0.4rem 0 0; }
+.hint.center { text-align: center; }
+.section-head { max-width: 62ch; margin-bottom: 2.5rem; }
+.section-head p:last-child { margin-bottom: 0; }
+
+/* --- buttons ------------------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem;
+  padding: 0.78rem 1.4rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font: inherit; font-weight: 600; font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s var(--ease), box-shadow 0.18s, background 0.18s, border-color 0.18s;
+}
+.btn-sm { padding: 0.52rem 1rem; font-size: 0.88rem; }
+.btn.full { width: 100%; }
+.btn:active { transform: translateY(1px) scale(0.995); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--green), #12b981);
+  color: #04140d;
+  box-shadow: 0 10px 34px -12px rgba(37, 211, 102, 0.85);
+}
+.btn-primary:hover { transform: translateY(-1.5px); box-shadow: 0 16px 46px -10px rgba(37, 211, 102, 0.95); }
+/* A sheen that sweeps across on hover. */
+.btn-primary::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.45) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 0.7s var(--ease);
+}
+.btn-primary:hover::after { transform: translateX(120%); }
+.btn-ghost { background: var(--panel); border-color: var(--line-2); color: var(--text); }
+.btn-ghost:hover { background: var(--panel-2); border-color: rgba(255, 255, 255, 0.24); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+/* --- cards --------------------------------------------------------------- */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  transition: border-color 0.25s, background 0.25s, transform 0.25s var(--ease);
+}
+.card.wide { margin-top: var(--gap-card); }
+.card h3 { margin-bottom: 0.35rem; }
+.card p { font-size: 0.93rem; margin: 0; }
+/* Six green-on-green icon tiles in a grid read as a rash rather than as six
+   distinct capabilities. Neutral at rest, green under the pointer. */
+.card .ico {
+  width: 40px; height: 40px; border-radius: 11px;
+  display: grid; place-items: center;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid var(--line);
+  margin-bottom: 1rem;
+  transition: color 0.3s var(--ease), background 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+.card:hover .ico {
+  color: var(--green-soft);
+  background: rgba(37, 211, 102, 0.12);
+  border-color: rgba(37, 211, 102, 0.34);
+}
+
+/* Pointer-tracked tilt + a light that follows the cursor (see useTilt).
+ *
+ * The lift is part of the SAME transform as the tilt — a separate translate on
+ * a parent would fight it. While the pointer is inside (.tilting) the transform
+ * transition is nearly off so the card tracks the cursor instead of lagging
+ * behind it by a quarter second; on leave the longer ease returns it smoothly. */
+/* No rotateX/rotateY any more. Tipping a card in 3D on hover is a gimmick;
+   a clean lift with a light that tracks the cursor is the same idea done
+   quietly. useTilt still supplies --mx/--my for the light. */
+.tilt {
+  transform: translate3d(0, var(--lift, 0px), 0);
+  transition:
+    transform 0.5s var(--ease),
+    border-color 0.3s var(--ease),
+    background 0.3s var(--ease),
+    box-shadow 0.4s var(--ease);
+}
+.tilt.tilting { transition: transform 0.08s linear, border-color 0.3s, background 0.3s, box-shadow 0.4s; }
+.tilt::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), rgba(37, 211, 102, 0.16), transparent 68%);
+  opacity: 0;
+  transition: opacity 0.35s var(--ease);
+  pointer-events: none;
+}
+.tilt:hover {
+  --lift: -5px;
+  border-color: rgba(37, 211, 102, 0.34);
+  background: var(--panel-2);
+  box-shadow: 0 22px 50px -28px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(37, 211, 102, 0.1);
+}
+.tilt:hover::before { opacity: 1; }
+
+.grid { display: grid; gap: var(--gap-card); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g2 { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 760px) { .g2 { grid-template-columns: 1fr; } }
+
+/* --- the self-host / managed fork ---------------------------------------- */
+.choice { display: flex; flex-direction: column; padding: 1.75rem; }
+.choice h3 { font-size: 1.25rem; margin-bottom: 0.15rem; }
+.choice-price { font-size: 0.86rem; color: var(--dim); margin: 0 0 1.15rem; }
+/* Pushes the button to the bottom so both cards' actions line up however
+   differently the lists above them wrap. */
+.choice .btn { margin-top: auto; }
+
+.choice.featured { border-color: rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.035); }
+.ribbon {
+  position: absolute;
+  top: 1.1rem; right: 1.1rem;
+  font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--green-soft);
+  padding: 0.2rem 0.55rem;
+  border: 1px solid rgba(37, 211, 102, 0.32);
+  border-radius: 999px;
+  background: rgba(37, 211, 102, 0.1);
+}
+
+ul.ticks {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+ul.ticks li {
+  position: relative;
+  padding-left: 1.6rem;
+  font-size: 0.91rem;
+  color: var(--muted);
+}
+/* A drawn check rather than a ✓ glyph: the character renders at a different
+   weight and baseline in every font fallback, and lines up with nothing. */
+ul.ticks li::before {
+  content: "";
+  position: absolute;
+  left: 0.15rem; top: 0.42em;
+  width: 0.42rem; height: 0.72rem;
+  border: solid var(--green-soft);
+  border-width: 0 1.6px 1.6px 0;
+  transform: rotate(45deg);
+}
+.grid > .reveal { height: 100%; }
+@media (max-width: 940px) { .g3 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .g3 { grid-template-columns: 1fr; } }
+
+/* --- hero ---------------------------------------------------------------- */
+.hero { padding: 2.75rem 0 var(--gap-section); position: relative; }
+.hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 3.5rem; align-items: center; }
+.hero .cta { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.9rem; }
+@media (max-width: 420px) { .hero .cta .btn { width: 100%; } }
+.hero-copy { animation: fadeIn 0.7s var(--ease) both; }
+.hero-demo { animation: fadeIn 0.9s var(--ease) 0.2s both; }
+@media (max-width: 980px) { .hero-grid { grid-template-columns: 1fr; gap: 2.75rem; } }
+
+.status-pill {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  font-size: 0.84rem; color: var(--muted);
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  margin-bottom: 1.4rem;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); flex: none; }
+.dot.live { background: var(--green); animation: pulse 2.2s infinite; }
+.dot.warn { background: var(--amber); }
+.dot.bad { background: var(--red); }
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6); }
+  70% { box-shadow: 0 0 0 9px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+/* =========================================================================
+   The WhatsApp simulation
+   ========================================================================= */
+.wa {
+  border: 1px solid var(--line-2);
+  border-radius: 30px;
+  padding: 0.55rem;
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.015));
+  box-shadow: 0 50px 100px -45px #000, var(--glow);
+  /* A long, shallow drift — enough that the hero is never completely still,
+     slow enough that you notice it only if you look for it. */
+  animation: hover 9s ease-in-out infinite alternate;
+}
+@keyframes hover {
+  from { transform: translate3d(0, 5px, 0); }
+  to { transform: translate3d(0, -5px, 0); }
+}
+.wa-frame {
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: clamp(430px, 44vh, 510px);
+  background: #0b141a;
+}
+
+/* header */
+.wa-head {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.65rem 0.8rem;
+  background: #202c33;
+  color: #e9edef;
+  flex: none;
+}
+.wa-back { color: #aebac1; flex: none; }
+@media (max-width: 420px) { .wa-back { display: none; } }
+.wa-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: linear-gradient(140deg, var(--green), #0f766e);
+  color: #04140d; font-weight: 800; font-size: 0.9rem;
+  flex: none;
+}
+.wa-who { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+.wa-who strong { font-size: 0.94rem; font-weight: 600; }
+.wa-who span { font-size: 0.75rem; color: #8696a0; transition: color 0.2s; }
+.wa-actions { margin-left: auto; display: flex; gap: 1.1rem; color: #aebac1; }
+@media (max-width: 420px) { .wa-actions svg:not(:last-child) { display: none; } }
+
+/* conversation surface — WhatsApp's dark wallpaper with its doodle pattern */
+.wa-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.9rem 0.75rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  /* Messages stack UP from the composer, the way a real chat does. Top-aligning
+     them left a 400px void under the first message and read as broken. */
+  justify-content: flex-end;
+  gap: 0.35rem;
+  background-color: #0b141a;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 140 140'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.028' stroke-width='1.4'%3E%3Ccircle cx='22' cy='24' r='7'/%3E%3Cpath d='M54 18h14v11H60l-4 5v-5h-2z'/%3E%3Cpath d='M96 16l5 9-5 9-5-9z'/%3E%3Cpath d='M118 30c4-6 12-6 12 1 0 5-6 7-12 12'/%3E%3Cpath d='M14 62h13M14 68h9'/%3E%3Ccircle cx='52' cy='66' r='6'/%3E%3Cpath d='M78 58l8 8-8 8-8-8z'/%3E%3Cpath d='M108 60h16v12h-16z'/%3E%3Cpath d='M18 104l6-8 6 8z'/%3E%3Cpath d='M48 100h16M48 106h11M48 112h14'/%3E%3Ccircle cx='90' cy='106' r='8'/%3E%3Cpath d='M118 100v14M112 107h12'/%3E%3C/g%3E%3C/svg%3E");
+  scrollbar-width: thin;
+  scrollbar-color: #374248 transparent;
+}
+.wa-body::-webkit-scrollbar { width: 5px; }
+.wa-body::-webkit-scrollbar-thumb { background: #374248; border-radius: 3px; }
+
+.wa-day {
+  align-self: center;
+  margin-top: auto;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: #8696a0;
+  background: #182229;
+  padding: 0.28rem 0.75rem;
+  border-radius: 7px;
+  margin-bottom: 0.5rem;
+  flex: none;
+}
+
+.wa-row { display: flex; max-width: 100%; }
+.wa-row.out { justify-content: flex-end; }
+.wa-row.in { justify-content: flex-start; }
+
+.wa-bubble {
+  position: relative;
+  max-width: 78%;
+  padding: 0.4rem 0.55rem 0.35rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.855rem;
+  line-height: 1.42;
+  color: #e9edef;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.28);
+  animation: bubbleIn 0.36s var(--ease) both;
+}
+.wa-bubble p { margin: 0; color: inherit; }
+/* Reserves space on the last line so the absolutely-positioned timestamp can
+   never sit on top of the words. If it does not fit, the line wraps — which is
+   exactly what WhatsApp does. */
+.meta-spacer { display: inline-block; width: 3.3rem; height: 1px; }
+.meta-spacer.out { width: 4.6rem; }
+.wa-row.out .wa-bubble { background: #005c4b; border-top-right-radius: 0; }
+.wa-row.in .wa-bubble { background: #202c33; border-top-left-radius: 0; }
+
+/* the little tail */
+.wa-row.out .wa-bubble::after,
+.wa-row.in .wa-bubble::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 8px; height: 12px;
+}
+.wa-row.out .wa-bubble::after {
+  right: -8px;
+  background: #005c4b;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.wa-row.in .wa-bubble::after {
+  left: -8px;
+  background: #202c33;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+
+.wa-bubble.rich { padding-bottom: 0.2rem; }
+.wa-bubble.rich .wa-meta {
+  position: static;
+  display: flex;
+  justify-content: flex-end;
+  margin: -0.15rem 0 0.15rem;
+}
+.wa-meta {
+  position: absolute;
+  right: 0.55rem; bottom: 0.28rem;
+  display: inline-flex; align-items: center; gap: 0.22rem;
+  font-size: 0.635rem;
+  color: rgba(233, 237, 239, 0.55);
+  white-space: nowrap;
+}
+.ticks { color: rgba(233, 237, 239, 0.6); transition: color 0.4s; }
+.ticks.read { color: #53bdeb; }
+
+/* typing indicator */
+.wa-typing { display: flex; gap: 4px; padding: 0.7rem 0.8rem; align-items: center; }
+.wa-typing i {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #8696a0;
+  animation: blink 1.25s infinite ease-in-out;
+}
+.wa-typing i:nth-child(2) { animation-delay: 0.18s; }
+.wa-typing i:nth-child(3) { animation-delay: 0.36s; }
+@keyframes blink {
+  0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* voice note */
+.voice { display: flex; align-items: center; gap: 0.55rem; padding: 0.15rem 0 0.5rem; min-width: 190px; }
+.voice-play {
+  width: 30px; height: 30px; border-radius: 50%; flex: none;
+  border: 0; cursor: default;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  color: #e9edef;
+}
+.wave { display: flex; align-items: center; gap: 2.5px; height: 28px; flex: 1; }
+.wave span {
+  width: 2.5px; border-radius: 2px; flex: none;
+  background: #8696a0;
+  animation: pulseBar 1.5s ease-in-out infinite;
+}
+.wave span.out { background: rgba(255, 255, 255, 0.55); }
+@keyframes pulseBar { 0%, 100% { transform: scaleY(0.55); } 50% { transform: scaleY(1); } }
+.voice-len { font-size: 0.68rem; color: rgba(233, 237, 239, 0.6); flex: none; }
+
+/* download result card */
+.media-card {
+  display: flex; align-items: center; gap: 0.65rem;
+  padding: 0.15rem 0 0.55rem;
+  min-width: 220px;
+}
+.media-art {
+  position: relative;
+  width: 42px; height: 42px; border-radius: 7px; flex: none;
+  display: grid; place-items: center;
+  background: linear-gradient(140deg, #0f766e, #064e3b);
+  color: #d1fae5;
+}
+.media-eq { position: absolute; bottom: 4px; right: 4px; display: flex; gap: 1.5px; align-items: flex-end; height: 10px; }
+.media-eq i {
+  width: 2px; background: var(--green-soft); border-radius: 1px;
+  animation: eq 0.9s ease-in-out infinite;
+}
+.media-eq i:nth-child(1) { height: 4px; animation-delay: 0s; }
+.media-eq i:nth-child(2) { height: 8px; animation-delay: 0.15s; }
+.media-eq i:nth-child(3) { height: 5px; animation-delay: 0.3s; }
+.media-eq i:nth-child(4) { height: 9px; animation-delay: 0.45s; }
+@keyframes eq { 0%, 100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
+.media-meta { display: flex; flex-direction: column; min-width: 0; }
+.media-meta strong { font-size: 0.83rem; font-weight: 600; }
+.media-meta span { font-size: 0.72rem; color: rgba(233, 237, 239, 0.55); }
+
+/* composer */
+.wa-composer {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: #202c33;
+  flex: none;
+}
+.wa-input {
+  flex: 1;
+  display: flex; align-items: center; gap: 0.55rem;
+  background: #2a3942;
+  border-radius: 21px;
+  padding: 0.55rem 0.8rem;
+  min-height: 42px;
+  color: #8696a0;
+  transition: background 0.25s;
+}
+.wa-input.rec { background: #2a3942; }
+.wa-emoji, .wa-clip { color: #8696a0; flex: none; }
+.wa-draft {
+  flex: 1;
+  font-size: 0.86rem;
+  color: #e9edef;
+  min-width: 0;
+  word-break: break-word;
+  display: flex; align-items: center;
+}
+.wa-placeholder { color: #8696a0; }
+.caret {
+  display: inline-block;
+  width: 1.5px; height: 1.05em;
+  margin-left: 1.5px;
+  background: var(--green);
+  animation: caret 1s steps(1) infinite;
+}
+@keyframes caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+.rec-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); animation: blink 1s infinite; flex: none; }
+.rec-text { font-size: 0.86rem; color: #e9edef; }
+.rec-wave { display: flex; gap: 2.5px; align-items: center; margin-left: auto; height: 18px; }
+.rec-wave i {
+  width: 2.5px; height: 100%; border-radius: 2px; background: #8696a0;
+  animation: pulseBar 0.8s ease-in-out infinite;
+}
+.rec-wave i:nth-child(2) { animation-delay: 0.1s; }
+.rec-wave i:nth-child(3) { animation-delay: 0.2s; }
+.rec-wave i:nth-child(4) { animation-delay: 0.3s; }
+.rec-wave i:nth-child(5) { animation-delay: 0.4s; }
+.rec-wave i:nth-child(6) { animation-delay: 0.5s; }
+
+.wa-send {
+  width: 42px; height: 42px; border-radius: 50%; flex: none;
+  border: 0; cursor: default;
+  display: grid; place-items: center;
+  background: var(--green);
+  color: #04140d;
+  transition: transform 0.25s var(--ease);
+}
+.wa-send.active { transform: scale(1.06); }
+
+/* --- stats --------------------------------------------------------------- */
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--line); border-radius: var(--radius-lg);
+  background: var(--panel);
+  overflow: hidden;
+}
+.stat { padding: 1.5rem 1.2rem; text-align: center; border-right: 1px solid var(--line); }
+.stat:last-child { border-right: 0; }
+.stat b {
+  display: block; font-size: 1.95rem; font-weight: 700;
+  letter-spacing: -0.03em; color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.stat span { font-size: 0.78rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; }
+@media (max-width: 760px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat:nth-child(2) { border-right: 0; }
+  .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid var(--line); }
+}
+
+/* --- commands ------------------------------------------------------------
+ * The groups used to be bare lists on the page background. Each holds a
+ * different number of commands, so they wrapped to different depths and left
+ * ragged holes — `.kick` and `.setprefix` ended up stranded alone on a row.
+ *
+ * Boxing each group contains its own wrap, and the last group spans the row so
+ * the grid ends flush instead of on a lone card.
+ *
+ * TWO columns, not three. There are five groups: at three columns the fifth is
+ * pushed onto a row of its own and the fourth is left stranded beside a gap.
+ * Two columns divide 5 as 2 + 2 + 1, and the wider cards fit six commands per
+ * line instead of four. */
+.cmd-groups { display: grid; gap: var(--gap-card); }
+@media (min-width: 760px) {
+  .cmd-groups { grid-template-columns: repeat(2, 1fr); }
+  .cmd-cell:last-child { grid-column: span 2; }
+}
+.cmd-cell { height: 100%; }
+.cmd-group {
+  height: 100%;
+  padding: 1.25rem 1.35rem 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  transition: border-color 0.25s, background 0.25s;
+}
+.cmd-group:hover { border-color: var(--line-2); background: var(--panel-2); }
+.cat-title {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 0.9rem;
+}
+.cat-title svg { color: var(--dim); flex: none; }
+.cmd-group:hover .cat-title svg { color: var(--green-soft); }
+.cmds { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.chip {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--muted);
+  transition: color 0.16s, border-color 0.16s, background 0.16s, transform 0.16s var(--ease);
+}
+.chip:hover {
+  color: #d7ffe6;
+  border-color: rgba(37, 211, 102, 0.55);
+  background: rgba(37, 211, 102, 0.11);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px -8px rgba(37, 211, 102, 0.7);
+}
+/* Chips arrive one after another as their group reveals. */
+.reveal .chip { opacity: 0; transform: translateY(8px); }
+.reveal.in .chip { opacity: 1; transform: none; }
+
+/* --- failover ------------------------------------------------------------ */
+/* The hand-off rail above the tier cards.
+ *
+ * It mirrors `.flow`'s grid exactly rather than positioning the dots at
+ * 16.6%/50%/83.3%. Those fractions ignore the gaps, which puts every dot about
+ * 7px off the centre of the card it belongs to — close enough to look like a
+ * mistake rather than a decision. Sharing the track means they cannot drift. */
+.flow-rail {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-card);
+  margin-bottom: 0.85rem;
+}
+.rail-cell { position: relative; height: 20px; }
+/* The segment from this dot to the next: half of this cell, the gap, half of
+   the next. */
+.rail-cell:not(:last-child)::after,
+.rail-cell:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  width: calc(100% + var(--gap-card));
+  height: 1px;
+  margin-top: -0.5px;
+}
+.rail-cell:not(:last-child)::after { background: var(--line); }
+.rail-cell:not(:last-child)::before {
+  background: linear-gradient(90deg, rgba(37, 211, 102, 0.15), var(--green));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.85s var(--ease);
+  z-index: 1;
+}
+.rail-cell.lit:not(:last-child)::before { transform: scaleX(1); }
+
+.rail-dot {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 9px; height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  z-index: 2;
+  transition: background 0.5s, border-color 0.5s, box-shadow 0.5s, transform 0.5s var(--ease);
+}
+.rail-dot.done { background: rgba(37, 211, 102, 0.5); border-color: rgba(37, 211, 102, 0.5); }
+.rail-dot.hot {
+  background: var(--green);
+  border-color: var(--green);
+  transform: scale(1.35);
+  box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.16), 0 0 14px 2px rgba(37, 211, 102, 0.5);
+}
+
+.flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap-card); }
+@media (max-width: 860px) {
+  .flow { grid-template-columns: 1fr; }
+  /* Stacked cards are not side by side, so a horizontal track between them
+     would connect nothing. */
+  .flow-rail { display: none; }
+}
+.flow-card { transition: border-color 0.5s, background 0.5s, transform 0.5s var(--ease), box-shadow 0.5s; }
+.flow-card.hot {
+  border-color: rgba(37, 211, 102, 0.42);
+  background: rgba(37, 211, 102, 0.055);
+  transform: translateY(-4px);
+  box-shadow: 0 18px 50px -26px rgba(37, 211, 102, 0.75);
+}
+.tier {
+  display: flex; align-items: center; gap: 0.45rem;
+  font-family: var(--mono); font-size: 0.72rem;
+  color: var(--green-soft); letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 0.55rem;
+}
+.tier-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dim); transition: background 0.5s, box-shadow 0.5s; }
+.flow-card.hot .tier-dot { background: var(--green); box-shadow: 0 0 10px 2px rgba(37, 211, 102, 0.6); }
+
+/* --- setup ---------------------------------------------------------------
+ * Heading on the left, steps on the right.
+ *
+ * The steps used to be a two-column grid, and step 2 carries a code block — so
+ * that row grew tall and left a hole under step 1. Numbered stages are also
+ * sequential, and a two-column grid asks the reader to work out whether it runs
+ * across or down. One column answers that, and the freed width goes to the
+ * heading, which previously sat in a 62ch block with an empty half-page beside
+ * it. */
+.setup-grid { display: grid; gap: 2.5rem; }
+@media (min-width: 940px) {
+  .setup-grid { grid-template-columns: 0.8fr 1.2fr; gap: 4rem; align-items: start; }
+  .setup-aside { position: sticky; top: 6rem; }
+}
+.setup-aside .section-head { margin-bottom: 1.75rem; }
+
+.steps { display: grid; list-style: none; margin: 0; padding: 0; }
+.step {
+  display: grid; grid-template-columns: 34px 1fr; gap: 1.2rem;
+  padding: 1.35rem 0;
+  border-top: 1px solid var(--line);
+  position: relative;
+}
+.steps > .reveal:first-child .step { border-top: 0; padding-top: 0; }
+.step .n {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: grid; place-items: center;
+  font-family: var(--mono); font-size: 0.85rem; font-weight: 600;
+  border: 1px solid var(--line-2);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  transition: color 0.25s, border-color 0.25s, background 0.25s;
+}
+.step:hover .n {
+  color: var(--green-soft);
+  border-color: rgba(37, 211, 102, 0.4);
+  background: rgba(37, 211, 102, 0.1);
+}
+.step-body { min-width: 0; }
+.step h3 { margin-bottom: 0.25rem; }
+.step p { margin: 0; font-size: 0.93rem; }
+
+pre.code {
+  font-family: var(--mono); font-size: 0.8rem;
+  background: rgba(0, 0, 0, 0.42);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 0.85rem 1rem;
+  overflow-x: auto;
+  color: #b9c6d4;
+  margin: 0.85rem 0 0;
+  white-space: pre-wrap;
+}
+
+/* --- footer -------------------------------------------------------------- */
+footer { border-top: 1px solid var(--line); padding: 2.5rem 0; color: var(--dim); font-size: 0.88rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center; }
+footer a { color: var(--muted); text-decoration: none; }
+footer a:hover { color: var(--green-soft); }
+
+/* =========================================================================
+   /link — the pairing panel
+   ========================================================================= */
+.panel-page { min-height: 100vh; display: grid; place-items: center; padding: 2.5rem 1.25rem; }
+.panel {
+  width: min(100%, 560px);
+  background: rgba(10, 14, 20, 0.74);
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-lg);
+  padding: 2.2rem;
+  box-shadow: 0 50px 110px -50px #000, var(--glow);
+  transition: min-height 0.3s;
+  animation: panelIn 0.6s var(--ease) both;
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.panel h1 { font-size: 1.6rem; margin-bottom: 0.3rem; }
+.panel .sub { font-size: 0.93rem; margin-bottom: 1.8rem; }
+.panel-loading { display: grid; place-items: center; min-height: 220px; }
+
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 0.4rem; font-weight: 550; }
+.field input {
+  width: 100%;
+  padding: 0.8rem 0.95rem;
+  font: inherit; font-size: 0.95rem;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line-2);
+  border-radius: 11px;
+  outline: none;
+  transition: border-color 0.16s, box-shadow 0.16s;
+}
+.field input:focus { border-color: rgba(37, 211, 102, 0.55); box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.13); }
+.field input::placeholder { color: var(--dim); }
+
+.tabs {
+  position: relative;
+  display: flex; gap: 0.35rem;
+  padding: 0.3rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  margin-bottom: 1.5rem;
+}
+.tabs button {
+  position: relative; z-index: 1;
+  flex: 1; padding: 0.6rem; border: 0; border-radius: 10px;
+  background: transparent; color: var(--muted);
+  font: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  transition: color 0.2s;
+}
+.tabs button[aria-selected="true"] { color: var(--green-soft); }
+/* A single pill that slides between the two tabs. */
+.tab-glider {
+  position: absolute;
+  top: 0.3rem; bottom: 0.3rem;
+  width: calc(50% - 0.475rem);
+  border-radius: 10px;
+  background: rgba(37, 211, 102, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(37, 211, 102, 0.3);
+  transition: transform 0.34s var(--ease);
+}
+.tab-glider.qr { transform: translateX(0.3rem); }
+.tab-glider.code { transform: translateX(calc(100% + 0.65rem)); }
+
+.qr-stage {
+  aspect-ratio: 1;
+  display: grid; place-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+.qr-img { width: 100%; height: 100%; border-radius: 8px; display: block; animation: fadeIn 0.4s var(--ease) both; }
+.qr-stage .placeholder { text-align: center; color: var(--dim); font-size: 0.9rem; padding: 2rem; }
+.qr-stage.live::after {
+  content: "";
+  position: absolute; left: 0; right: 0; height: 26%;
+  background: linear-gradient(180deg, transparent, rgba(37, 211, 102, 0.16), transparent);
+  animation: scan 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes scan { 0%, 100% { top: -26%; } 50% { top: 100%; } }
+
+.qr-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+.qr-timer {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--dim);
+  white-space: nowrap; padding-bottom: 0.1rem;
+}
+
+.spinner {
+  width: 30px; height: 30px; margin: 0 auto 0.9rem;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.code-out {
+  display: flex; justify-content: center; gap: 0.05em;
+  width: 100%;
+  font-family: var(--mono);
+  font-size: clamp(1.7rem, 7.5vw, 2.7rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 1.5rem 1rem;
+  margin-top: 1.2rem;
+  border-radius: 16px;
+  background: rgba(37, 211, 102, 0.07);
+  border: 1px dashed rgba(37, 211, 102, 0.4);
+  color: var(--green-soft);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.code-out:hover { background: rgba(37, 211, 102, 0.12); border-color: rgba(37, 211, 102, 0.6); }
+/* Each character drops in, so an issued code reads as new rather than static. */
+.code-ch { animation: chIn 0.42s var(--ease) both; }
+@keyframes chIn { from { opacity: 0; transform: translateY(-12px) scale(0.85); } to { opacity: 1; transform: none; } }
+
+.note {
+  padding: 0.8rem 1rem;
+  border-radius: 11px;
+  font-size: 0.88rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  margin-top: 1rem;
+}
+.note.err { border-color: rgba(248, 113, 113, 0.38); background: rgba(248, 113, 113, 0.08); color: #fecaca; }
+.note.ok { border-color: rgba(37, 211, 102, 0.38); background: rgba(37, 211, 102, 0.08); color: #bbf7d0; }
+.shake { animation: shake 0.4s var(--ease) both; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(2px); }
+}
+
+.state-row {
+  display: flex; align-items: center; gap: 0.6rem;
+  font-size: 0.86rem; color: var(--muted);
+  margin-bottom: 1.4rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--panel);
+}
+.state-row .right { margin-left: auto; font-family: var(--mono); font-size: 0.78rem; color: var(--dim); }
+
+ol.help { margin: 1.2rem 0 0; padding-left: 1.2rem; color: var(--muted); font-size: 0.88rem; }
+ol.help li { margin-bottom: 0.35rem; }
+
+.linked-badge { text-align: center; padding: 2.5rem 1rem; }
+.linked-badge h3 { margin-bottom: 0.3rem; }
+.linked-badge p { margin: 0; font-size: 0.92rem; }
+.tick {
+  width: 62px; height: 62px; margin: 0 auto 1rem;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 1.8rem;
+  background: rgba(37, 211, 102, 0.14);
+  border: 1px solid rgba(37, 211, 102, 0.42);
+  color: var(--green-soft);
+}
+.pop { animation: pop 0.55s var(--ease) both; }
+@keyframes pop {
+  0% { opacity: 0; transform: scale(0.4); }
+  60% { transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.back { display: inline-block; margin-top: 1.5rem; color: var(--dim); text-decoration: none; font-size: 0.86rem; }
+.back:hover { color: var(--muted); }

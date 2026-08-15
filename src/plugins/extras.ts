@@ -1,0 +1,89 @@
+/**
+ * Odds and ends that don't warrant their own file: the "catch me up" chat
+ * summariser, plus small quality-of-life toggles. Anything here that grows
+ * beyond a screen or two should graduate into its own plugin.
+ */
+import { command } from '../core/registry.js';
+import { config } from '../config.js';
+import { getSetting, setSetting, deleteSetting } from '../db/index.js';
+import { recentMessages } from '../core/chatlog.js';
+import { quickGen } from './chatbot.js';
+import type { Message } from '../core/message.js';
+
+/* ------------------------- 📝 catch me up ------------------------- */
+
+command(
+  { pattern: 'catchup ?(.*)', desc: 'Summarise the recent messages you missed', usage: '[how many]', category: 'ai' },
+  async (m, match) => {
+    const n = Math.min(120, Math.max(5, Number((match?.[1] ?? '').trim()) || 40));
+    const msgs = recentMessages(m.chat, n);
+    if (msgs.length < 3) return m.reply('🙂 Not enough recent messages to summarise yet — check back after a bit of chatting.');
+
+    const transcript = msgs.map((x) => `${x.name}: ${x.text}`).join('\n');
+    await m.react('📝');
+    const summary = await quickGen(
+      `Summarise this WhatsApp ${m.isGroup ? 'group ' : ''}conversation for someone who was away. Give the key points, decisions, questions asked, and anything that needs a reply — as short, clear bullet points. Be concise.\n\n---\n${transcript}`,
+    );
+    await m.reply(summary ? `📝 *Here's what you missed:*\n\n${summary}` : "😅 Couldn't summarise right now — try again in a sec.");
+  },
+);
+
+/* ------------------------- 🎉 party games ------------------------- */
+
+// Trivia with a light pending-answer state per chat.
+const pendingTrivia = new Map<string, { answer: string; at: number }>();
+
+command({ pattern: 'trivia', desc: 'Start a trivia question', category: 'fun' }, async (m) => {
+  await m.react('🧠');
+  const raw = await quickGen('Ask ONE fun general-knowledge trivia question (medium difficulty). Reply EXACTLY in this format and nothing else:\nQ: <the question>\nA: <the short answer>');
+  const q = raw.match(/Q:\s*(.+)/i)?.[1]?.trim();
+  const a = raw.match(/A:\s*(.+)/i)?.[1]?.trim();
+  if (!q || !a) return m.reply('🤔 my brain fogged — try *.trivia* again.');
+  pendingTrivia.set(m.chat, { answer: a.toLowerCase(), at: Date.now() });
+  await m.reply(`🧠 *Trivia time!*\n\n${q}\n\n_Just reply with your answer 👇_`);
+});
+
+// Passive: check replies against a pending trivia answer (reacts only on a win).
+command({ on: 'message' }, async (m: Message) => {
+  const p = pendingTrivia.get(m.chat);
+  if (!p || m.fromMe || !m.body) return;
+  if (Date.now() - p.at > 5 * 60_000) return void pendingTrivia.delete(m.chat);
+  if (config.prefixes.some((x) => x && m.body.startsWith(x))) return; // ignore commands
+  const guess = m.body.trim().toLowerCase();
+  const correct = guess === p.answer || (guess.length >= 3 && (guess.includes(p.answer) || p.answer.includes(guess)));
+  if (correct) {
+    pendingTrivia.delete(m.chat);
+    await m.reply(`✅ *Correct!* The answer was *${p.answer}* 🎉`);
+  }
+});
+
+command({ pattern: 'wyr', desc: 'Would you rather…', category: 'fun' }, async (m) => {
+  await m.react('🤔');
+  const wyr = await quickGen('Pose ONE fun, surprising "Would you rather" dilemma (two options). Keep it to one or two sentences, playful. No preamble.');
+  await m.reply(wyr ? `🤔 *Would you rather…*\n${wyr}` : 'Would you rather try that again? 😅');
+});
+
+command({ pattern: 'riddle', desc: 'Get a riddle', category: 'fun' }, async (m) => {
+  await m.react('🧩');
+  const riddle = await quickGen('Give ONE clever riddle. Put the riddle first, then on a new line write "||Answer: <answer>" so it stays hidden until they think. One riddle only.');
+  await m.reply(riddle ? `🧩 ${riddle}` : 'Hmm, no riddle came to mind — try again 🙂');
+});
+
+/* ------------------- 📞 call auto-answer toggle ------------------- */
+
+command(
+  { pattern: 'callreply ?(.*)', fromMe: true, desc: 'Toggle auto voice-note reply to incoming calls', usage: 'on|off', category: 'system' },
+  async (m, match) => {
+    const v = (match?.[1] ?? '').trim().toLowerCase();
+    if (v === 'off') {
+      setSetting('call.answer', 'off');
+      return m.reply('📞 Call auto-answer is *OFF* — I\'ll ignore incoming calls now.');
+    }
+    if (v === 'on') {
+      deleteSetting('call.answer');
+      return m.reply('📞 Call auto-answer is *ON* — when someone calls, I decline and reply with a voice note.');
+    }
+    const state = getSetting('call.answer') === 'off' ? 'off' : 'on';
+    await m.reply(`📞 Call auto-answer is *${state}*.\nWhen ON, a call to me gets declined + an instant voice-note reply. Use *.callreply on|off*.`);
+  },
+);

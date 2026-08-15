@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  typecheck:
+    name: Type-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # @nexus21/nexus-api pulls in puppeteer, which only its unused legacy class
+      # needs. Skipping the Chromium download keeps CI fast.
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 1
+
+      - name: Type-check
+        run: npm run typecheck
+
+  # Heavy: the image installs a JDK, Deno, yt-dlp and Piper voices, so this runs
+  # ~15 min and depends on third-party download endpoints. Kept off pull requests
+  # to keep those fast — delete this job if the flakiness isn't worth it to you.
+  docker:
+    name: Docker build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
