@@ -93,5 +93,15 @@ ENV NODE_ENV=production \
 # can write regardless of who owns the directory.
 RUN mkdir -p /app/session /app/data && chown -R 10001:10001 /app/session /app/data
 
-# tsx is the runner; `npm start` -> tsx src/index.ts
-CMD ["npm", "start"]
+# Run the bot as PID 1, NOT via `npm start`.
+#
+# npm does not forward signals to the script it spawns. As PID 1 it swallowed
+# the SIGTERM from `docker stop`, node never ran its shutdown handler, and the
+# runtime SIGKILLed it ten seconds later — so the single-instance lock in the
+# session volume was never released. The next container then found a lockfile it
+# could not verify and refused to start, and a bot that had simply been
+# restarted was permanently unable to boot.
+#
+# `node --import tsx` runs the loader in-process: one process, no wrapper, and
+# SIGTERM lands on the thing that actually holds the lock.
+CMD ["node", "--import", "tsx", "src/index.ts"]
