@@ -39,6 +39,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Required for cache-to: type=gha below. The runner's default buildx
+      # driver is "docker", which cannot export a cache — this switches to the
+      # docker-container driver, which can.
+      - uses: docker/setup-buildx-action@v3
+
       - name: Build image
         uses: docker/build-push-action@v6
         with:
