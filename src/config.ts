@@ -47,7 +47,8 @@ export const config = {
   nexus: {
     url: str('NEXUS_API_URL', 'https://api.groq.com/openai/v1/chat/completions'),
     key: str('NEXUS_API_KEY') || str('GROQ_API_KEY') || str('CLAUDE_API_KEY'),
-    model: str('NEXUS_MODEL', 'llama-3.3-70b-versatile'),
+    // Was llama-3.3-70b-versatile until Groq decommissioned it on 2026-08-16.
+    model: str('NEXUS_MODEL', 'openai/gpt-oss-120b'),
     /** Fallback model used when the primary is rate-limited OR unreachable. */
     fallbackModel: str('NEXUS_FALLBACK_MODEL', 'llama-3.1-8b-instant'),
     /** Fallback endpoint/key — defaults to the primary provider. Point these at

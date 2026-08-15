@@ -25,7 +25,7 @@ OWNERS=            # your number w/ country code, no + (optional; linked account
 
 NEXUS_API_URL=https://api.groq.com/openai/v1/chat/completions
 NEXUS_API_KEY=gsk_your_real_key_here
-NEXUS_MODEL=llama-3.3-70b-versatile
+NEXUS_MODEL=openai/gpt-oss-120b
 NEXUS_VISION_MODEL=qwen/qwen3.6-27b
 NEXUS_STT_MODEL=whisper-large-v3
 NEXUS_TTS_MODEL=
@@ -75,7 +75,7 @@ NEXUS_VISION_MODEL=qwen2.5vl:7b
 # safety net = Groq (used only when Ollama is off/unreachable)
 NEXUS_FALLBACK_URL=https://api.groq.com/openai/v1/chat/completions
 NEXUS_FALLBACK_KEY=gsk_your_real_key_here
-NEXUS_FALLBACK_MODEL=llama-3.3-70b-versatile
+NEXUS_FALLBACK_MODEL=openai/gpt-oss-120b
 NEXUS_VISION_FALLBACK_MODEL=qwen/qwen3.6-27b
 ```
 (Keep the shared lines — `NEXUS_STT_MODEL`, `NEXUS_TTS_*`, `NEXUS_SEARCH_ENGINE`, `BOT_TZ`.)
