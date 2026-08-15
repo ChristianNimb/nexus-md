@@ -5,6 +5,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Backdrop from './Backdrop';
+import { api } from './apiBase';
 
 type Status = 'starting' | 'waiting' | 'connected' | 'closed' | 'logged-out';
 
@@ -66,7 +67,7 @@ export default function LinkPanel() {
 
   const connect = useCallback(() => {
     if (streamRef.current) return;
-    const es = new EventSource('/api/stream');
+    const es = new EventSource(api('/api/stream'));
     streamRef.current = es;
     es.onmessage = (ev) => {
       try {
@@ -83,7 +84,7 @@ export default function LinkPanel() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/health')
+    fetch(api('/api/health'))
       .then((r) => r.json())
       .then((d: { panelEnabled: boolean; authed: boolean }) => {
         if (!d.panelEnabled) return setView('disabled');
@@ -107,7 +108,7 @@ export default function LinkPanel() {
     setBusy(true);
     setLoginError('');
     try {
-      const r = await fetch('/api/login', {
+      const r = await fetch(api('/api/login'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -133,7 +134,7 @@ export default function LinkPanel() {
     setBusy(true);
     setNote(null);
     try {
-      const r = await fetch('/api/pair', {
+      const r = await fetch(api('/api/pair'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ number }),
@@ -275,7 +276,7 @@ export default function LinkPanel() {
                     <div className="pane fade-in">
                       <div className={`qr-stage${snap?.hasQr ? ' live' : ''}`}>
                         {snap?.hasQr ? (
-                          <img key={qrVersion} src={`/api/qr.svg?v=${qrVersion}`} alt="Scan this with WhatsApp" className="qr-img" />
+                          <img key={qrVersion} src={api(`/api/qr.svg?v=${qrVersion}`)} alt="Scan this with WhatsApp" className="qr-img" />
                         ) : (
                           <div className="placeholder">
                             <div className="spinner" />
