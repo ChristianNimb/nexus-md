@@ -19,8 +19,8 @@ en_US-ryan-high|en_US/ryan/high
 echo "$VOICES" | while IFS='|' read -r name path; do
   [ -z "$name" ] && continue
   echo "Fetching voice: $name"
-  curl -fsSL -o "$DEST/$name.onnx"      "$BASE/$path/$name.onnx"      || echo "  (skipped $name.onnx)"
-  curl -fsSL -o "$DEST/$name.onnx.json" "$BASE/$path/$name.onnx.json" || echo "  (skipped $name.onnx.json)"
+  curl -fsSL --retry 4 --retry-delay 2 --retry-connrefused --retry-all-errors -o "$DEST/$name.onnx"      "$BASE/$path/$name.onnx"      || echo "  (skipped $name.onnx)"
+  curl -fsSL --retry 4 --retry-delay 2 --retry-connrefused --retry-all-errors -o "$DEST/$name.onnx.json" "$BASE/$path/$name.onnx.json" || echo "  (skipped $name.onnx.json)"
 done
 
 echo "Installed voices:"

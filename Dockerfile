@@ -26,7 +26,17 @@ RUN pip3 install --no-cache-dir --break-system-packages edge-tts yt-dlp rembg on
 # Deno — a JS runtime yt-dlp / youtubei.js use to solve YouTube's player
 # signature ("nsig") challenges. Without it, recent YouTube downloads fail with
 # "Failed to extract signature" / bot checks even when cookies are present.
-RUN curl -fsSL https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip -o /tmp/deno.zip \
+#
+# `--retry` on every network fetch below is not defensive padding. A Docker
+# build is a long chain of downloads where ANY single dropped connection throws
+# away the whole layer and everything after it, and TLS handshakes to GitHub do
+# drop — one of these steps has failed with SSL_ERROR_SYSCALL while the step
+# immediately before it, to the same host, succeeded. `--retry-connrefused`
+# matters because a refused connection is not retried by default, and
+# `--retry-all-errors` covers the mid-transfer resets that curl otherwise
+# treats as fatal.
+RUN curl -fsSL --retry 5 --retry-delay 3 --retry-connrefused --retry-all-errors \
+  https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip -o /tmp/deno.zip \
   && unzip -o /tmp/deno.zip -d /usr/local/bin \
   && chmod +x /usr/local/bin/deno \
   && rm /tmp/deno.zip \
@@ -37,7 +47,8 @@ RUN curl -fsSL https://github.com/denoland/deno/releases/latest/download/deno-x8
 # with ".voice ...". This is why voice works with no API key, no billing, and no
 # rate limits. A voice that fails to download is skipped (build won't break).
 RUN cd /opt \
-  && curl -fsSL -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_x86_64.tar.gz \
+  && curl -fsSL --retry 5 --retry-delay 3 --retry-connrefused --retry-all-errors \
+       -o piper.tar.gz https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_x86_64.tar.gz \
   && tar -xzf piper.tar.gz && rm piper.tar.gz \
   && mkdir -p /opt/piper-voices
 COPY docker/fetch-voices.sh /tmp/fetch-voices.sh
