@@ -363,7 +363,7 @@ export default function ChatDemo() {
             {/* A real profile picture, the same mark as everywhere else. It sits
                 in the brand ink on the brand green, the way a photo would fill
                 a WhatsApp avatar, rather than a letter standing in for one. */}
-            <LogoMark size={22} />
+            <LogoMark size={24} />
           </span>
           <div className="wa-who">
             <strong>Nexus</strong>

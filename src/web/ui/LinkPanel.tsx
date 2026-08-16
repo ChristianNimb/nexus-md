@@ -29,7 +29,7 @@ const LABEL: Record<Status, string> = {
 
 const Brand = () => (
   <a className="brand panel-brand" href="/">
-    <LogoMark size={32} className="mark" animated />
+    <LogoMark size={46} className="mark" animated />
     <span>Nexus<span className="dim">-MD</span></span>
   </a>
 );
