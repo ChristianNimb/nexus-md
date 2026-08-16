@@ -211,7 +211,7 @@ export default function Landing() {
       <header className={`nav${scrolled || menuOpen ? ' solid' : ''}`}>
         <div className="wrap nav-bar">
           <a className="brand" href="/">
-            <LogoMark size={30} className="mark" />
+            <LogoMark size={30} className="mark" animated />
             <span>Nexus<span className="dim">-MD</span></span>
           </a>
 
