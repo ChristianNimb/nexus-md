@@ -40,10 +40,9 @@ const VERSION = (() => {
  * them is the honest one: there is no host but the machine.
  */
 function hostLabel(): string {
-  const platform = process.env['NEXUS_HOST_PLATFORM']?.trim();
-  if (!platform) return os.platform();
-  const workload = process.env['NEXUS_HOST_WORKLOAD']?.trim();
-  return workload ? `${platform} · ${workload}` : platform;
+  // The platform's name alone. The bot's own name is already the title of this
+  // card, so appending the workload said it twice.
+  return process.env['NEXUS_HOST_PLATFORM']?.trim() || os.platform();
 }
 
 function humanUptime(ms: number): string {
