@@ -28,6 +28,24 @@ const VERSION = (() => {
   }
 })();
 
+/**
+ * Where this bot is actually running.
+ *
+ * `os.platform()` answers a different question — it reports the kernel, so a
+ * bot hosted on a platform introduced itself as "linux", which is true of
+ * almost every server and tells the reader nothing.
+ *
+ * A hosting platform that wants to be named sets NEXUS_HOST_PLATFORM on the
+ * workload. Self-hosted bots set nothing and keep the old answer, which for
+ * them is the honest one: there is no host but the machine.
+ */
+function hostLabel(): string {
+  const platform = process.env['NEXUS_HOST_PLATFORM']?.trim();
+  if (!platform) return os.platform();
+  const workload = process.env['NEXUS_HOST_WORKLOAD']?.trim();
+  return workload ? `${platform} · ${workload}` : platform;
+}
+
 function humanUptime(ms: number): string {
   const s = Math.floor(ms / 1000);
   const d = Math.floor(s / 86400);
@@ -107,7 +125,7 @@ command({ pattern: 'alive', desc: 'Show bot status', category: 'system' }, async
     `│ 🔌 *Plugins*  : ${PLUGIN_COUNT}\n` +
     `│ 💾 *RAM*      : ${rss} (${ramPct}%)\n` +
     `│ 📈 *CPU*      : ${cpu}%  •  Heap ${heap}\n` +
-    `│ 🖥️ *Host*     : ${os.platform()}\n` +
+    `│ 🖥️ *Host*     : ${hostLabel()}\n` +
     `│ 🏷️ *Version*  : v${VERSION}\n` +
     `╰─────────────────\n` +
     `_Type_ *${prefix}menu* _for the command list._`;
