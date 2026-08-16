@@ -400,13 +400,14 @@ section.tight { padding-top: 0; padding-bottom: var(--gap-section); }
   white-space: nowrap;
 }
 .brand .dim { color: var(--dim); }
+/* The mark draws itself in currentColor, so the brand green belongs here and
+   nowhere in the SVG — the same file then works on any surface. No tile behind
+   it: the node graph already has a silhouette, and boxing it would fight the
+   speech-bubble outline it is built from. */
 .brand .mark {
-  width: 30px; height: 30px;
-  display: grid; place-items: center;
-  border-radius: 9px;
-  background: linear-gradient(140deg, var(--green), #0f9d58);
-  box-shadow: 0 4px 18px -4px rgba(37, 211, 102, 0.6);
-  font-weight: 800; font-size: 0.95rem; color: #04140d;
+  color: var(--green);
+  flex: none;
+  filter: drop-shadow(0 3px 14px rgba(37, 211, 102, 0.45));
 }
 .panel-brand { margin-bottom: 1.4rem; }
 

@@ -3,6 +3,7 @@ import Backdrop from './Backdrop';
 import { api } from './apiBase';
 import ChatDemo from './ChatDemo';
 import Icon, { type IconName } from './Icons';
+import { LogoMark } from './Logo';
 import { useCounter, useReveal, useScrollProgress, useScrollSpy, useScrolled, useTilt } from './hooks';
 
 /** Wraps children in a scroll-triggered fade-and-rise. */
@@ -210,7 +211,7 @@ export default function Landing() {
       <header className={`nav${scrolled || menuOpen ? ' solid' : ''}`}>
         <div className="wrap nav-bar">
           <a className="brand" href="/">
-            <span className="mark">N</span>
+            <LogoMark size={30} className="mark" />
             <span>Nexus<span className="dim">-MD</span></span>
           </a>
 

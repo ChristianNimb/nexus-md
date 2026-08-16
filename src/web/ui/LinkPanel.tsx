@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Backdrop from './Backdrop';
 import { api } from './apiBase';
+import { LogoMark } from './Logo';
 
 type Status = 'starting' | 'waiting' | 'connected' | 'closed' | 'logged-out';
 
@@ -28,7 +29,7 @@ const LABEL: Record<Status, string> = {
 
 const Brand = () => (
   <a className="brand panel-brand" href="/">
-    <span className="mark">N</span>
+    <LogoMark size={32} className="mark" />
     <span>Nexus<span className="dim">-MD</span></span>
   </a>
 );
