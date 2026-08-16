@@ -1,10 +1,10 @@
 /**
  * Where this panel's own API lives.
  *
- * The panel is served from two places and must talk to the same bot in both:
+ * Both pages are served from two places and must talk to the same bot in both:
  *
- *   /link                          the bot serving itself, directly
- *   /bots/<slug>/panel/link        the same page behind the hosting platform
+ *   /            /link                 the bot serving itself, directly
+ *   /bots/<slug>/panel/[link]          the same pages behind the hosting platform
  *
  * Every request used to be written `/api/…`, which is root-relative and so
  * ignores the prefix entirely. Behind the platform that sent `/api/health` to
@@ -19,7 +19,12 @@
  * needs no cooperation from whatever is proxying us: strip the trailing `link`
  * segment off the current pathname and whatever remains is the mount point.
  */
-const API_BASE = window.location.pathname.replace(/\/link(\.html)?\/?$/, '').replace(/\/$/, '');
+const API_BASE = window.location.pathname
+  // A page, not a directory: /index.html, /link.html
+  .replace(/\/[^/]*\.html?$/, '')
+  // The panel's extensionless route
+  .replace(/\/link\/?$/, '')
+  .replace(/\/$/, '');
 
 /** Builds a URL for `path` (which starts with `/`) under this panel's mount point. */
 export function api(path: string): string {

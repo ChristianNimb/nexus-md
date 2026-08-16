@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import Backdrop from './Backdrop';
+import { api } from './apiBase';
 import ChatDemo from './ChatDemo';
 import Icon, { type IconName } from './Icons';
 import { useCounter, useReveal, useScrollProgress, useScrollSpy, useScrolled, useTilt } from './hooks';
@@ -170,9 +171,14 @@ export default function Landing() {
   const activeSection = useScrollSpy(SPY_IDS);
 
   useEffect(() => {
-    fetch('/api/health')
+    fetch(api('/api/health'))
       .then((r) => r.json())
-      .then(setHealth)
+      // Only a payload that actually reports a link state can be shown as one.
+      // Anything else — notably the hosting platform's own /api/health, which is
+      // a perfectly valid response from a server that is not a bot — has no
+      // `online` field, and reading `undefined` as "not linked" made a linked
+      // bot advertise itself as unlinked on its own front page.
+      .then((d: Partial<Health>) => setHealth(typeof d?.online === 'boolean' ? (d as Health) : null))
       .catch(() => setHealth(null));
   }, []);
 
