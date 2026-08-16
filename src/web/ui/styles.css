@@ -737,7 +737,13 @@ ul.ticks li::before {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.28);
   animation: bubbleIn 0.36s var(--ease) both;
 }
-.wa-bubble p { margin: 0; color: inherit; }
+.wa-bubble p {
+  margin: 0;
+  color: inherit;
+  /* A pasted URL is one unbreakable token, and the demo now sends one. Without
+     this it runs straight out of the bubble on a phone. */
+  overflow-wrap: anywhere;
+}
 /* Reserves space on the last line so the absolutely-positioned timestamp can
    never sit on top of the words. If it does not fit, the line wraps — which is
    exactly what WhatsApp does. */
@@ -1303,3 +1309,123 @@ ol.help li { margin-bottom: 0.35rem; }
 
 .back { display: inline-block; margin-top: 1.5rem; color: var(--dim); text-decoration: none; font-size: 0.86rem; }
 .back:hover { color: var(--muted); }
+
+/* --- chat demo: quotes, jobs, video ---------------------------------------
+   Everything here exists because the real bot does it and the demo did not:
+   replies that quote what they answer, one message that edits itself through a
+   whole download, and a file that actually lands at the end. */
+
+/* The block above a reply, naming what it answers. WhatsApp tints it a shade
+   off the bubble it sits in and marks it with a coloured rail. */
+.wa-quote {
+  display: block;
+  margin: 0 0 0.3rem;
+  padding: 0.3rem 0.5rem;
+  border-left: 3px solid var(--green-soft);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.22);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+.wa-quote.own { border-left-color: #53bdeb; }
+.wa-quote strong { display: block; color: var(--green-soft); font-weight: 600; }
+.wa-quote.own strong { color: #53bdeb; }
+.wa-quote span {
+  display: block;
+  color: rgba(233, 237, 239, 0.75);
+  /* One line only. A quote that grows to the height of the thing it quotes
+     stops being a reference and becomes a repeat. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* WhatsApp's stamp on a message that is no longer what was first sent. */
+.wa-edited { margin-right: 0.35rem; font-size: 0.68rem; opacity: 0.75; }
+
+/* --- the self-editing job -------------------------------------------------- */
+
+.job { min-width: 13.5rem; }
+.job p { margin: 0; }
+.job-head { font-size: 0.845rem; line-height: 1.45; }
+.job-foot { margin-top: 0.35rem !important; font-size: 0.78rem; opacity: 0.72; font-style: italic; }
+.job-foot.mono { font-family: var(--mono); font-style: normal; opacity: 0.85; }
+
+.job-opts { list-style: none; margin: 0.4rem 0 0; padding: 0; display: grid; gap: 0.22rem; }
+.job-opts li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+.job-n { color: rgba(233, 237, 239, 0.6); font-variant-numeric: tabular-nums; }
+.job-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+/* The same three colours the bot itself uses, so somebody who has seen the real
+   thing recognises the shape of the question. */
+.job-dot.hd { background: #25d366; }
+.job-dot.sd { background: #53bdeb; }
+.job-dot.max { background: #f87171; }
+.job-note { color: rgba(233, 237, 239, 0.62); }
+
+.job-bar {
+  margin-top: 0.45rem;
+  height: 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.job-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--green);
+  /* Eased, so a jump from 27 to 45 slides instead of snapping. */
+  transition: width 0.28s var(--ease);
+}
+
+.job-tick { color: var(--green); font-weight: 700; }
+.job-file { margin-top: 0.2rem !important; font-size: 0.79rem; color: rgba(233, 237, 239, 0.72); }
+
+/* --- the delivered video --------------------------------------------------- */
+
+.wa-video { width: 12.5rem; }
+.wa-video-poster {
+  position: relative;
+  height: 7rem;
+  border-radius: 6px;
+  overflow: hidden;
+  /* Drawn, not shipped. A still from somebody else's clip is not ours to put on
+     a marketing page, and what matters is that a file arrived. */
+  background:
+    radial-gradient(120% 80% at 30% 20%, rgba(37, 211, 102, 0.28), transparent 60%),
+    radial-gradient(90% 70% at 80% 90%, rgba(83, 189, 235, 0.22), transparent 65%),
+    #0e1a16;
+}
+.wa-video-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  backdrop-filter: blur(2px);
+}
+.wa-video-len {
+  position: absolute;
+  left: 0.4rem; bottom: 0.4rem;
+  display: inline-flex; align-items: center; gap: 0.22rem;
+  padding: 0.1rem 0.32rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 0.7rem;
+}
+.wa-video-title {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: rgba(233, 237, 239, 0.75);
+}
