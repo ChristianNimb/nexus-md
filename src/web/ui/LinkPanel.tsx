@@ -20,11 +20,11 @@ interface Snapshot {
 }
 
 const LABEL: Record<Status, string> = {
-  starting: 'starting up — waiting for WhatsApp…',
+  starting: 'starting up, waiting for WhatsApp…',
   waiting: 'ready to link',
   connected: 'linked and online',
-  closed: 'disconnected — reconnecting…',
-  'logged-out': 'session was logged out — link again below',
+  closed: 'disconnected, reconnecting…',
+  'logged-out': 'session was logged out, link again below',
 };
 
 const Brand = () => (
@@ -184,7 +184,7 @@ export default function LinkPanel() {
               <Brand />
               <h1>Panel is off</h1>
               <p className="sub">
-                No panel password is configured, so linking over the web is disabled — otherwise anyone who reached
+                No panel password is configured, so linking over the web is disabled. Otherwise anyone who reached
                 this page could attach their own phone to your bot.
               </p>
               <div className="note">
@@ -311,7 +311,7 @@ export default function LinkPanel() {
                             onChange={(e) => setNumber(e.target.value)}
                             required
                           />
-                          <p className="hint">Country code first, digits only — no +, no spaces, no dashes.</p>
+                          <p className="hint">Country code first, digits only. No +, no spaces, no dashes.</p>
                         </div>
                         <button className="btn btn-primary full" type="submit" disabled={busy}>
                           {busy ? 'Asking WhatsApp…' : 'Get pairing code'}
@@ -333,7 +333,7 @@ export default function LinkPanel() {
                             <li>
                               Tap <strong>Link a device</strong>, then <strong>Link with phone number instead</strong>
                             </li>
-                            <li>Type the code above — it expires in about a minute</li>
+                            <li>Type the code above, it expires in about a minute</li>
                           </ol>
                         </div>
                       )}

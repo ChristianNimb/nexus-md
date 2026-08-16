@@ -678,8 +678,11 @@ ul.ticks li::before {
   width: 34px; height: 34px; border-radius: 50%;
   display: grid; place-items: center;
   background: linear-gradient(140deg, var(--green), #0f766e);
-  color: #04140d; font-weight: 800; font-size: 0.9rem;
+  /* The mark inside inherits this, so it reads as ink on a coloured photo
+     rather than a second green shape on a green field. */
+  color: #04140d;
   flex: none;
+  overflow: hidden;
 }
 .wa-who { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
 .wa-who strong { font-size: 0.94rem; font-weight: 600; }

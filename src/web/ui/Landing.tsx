@@ -268,7 +268,7 @@ export default function Landing() {
             {(health || !probed) && (
               <div className="status-pill">
                 <span className={`dot ${health?.online ? 'live' : health ? 'warn' : ''}`} />
-                {health ? (health.online ? `${bot} is online and linked` : `${bot} is running — not linked yet`) : 'checking status…'}
+                {health ? (health.online ? `${bot} is online and linked` : `${bot} is running but not linked yet`) : 'checking status…'}
               </div>
             )}
 
@@ -278,7 +278,7 @@ export default function Landing() {
             </h1>
 
             <p className="lead">
-              A TypeScript bot framework built on Baileys — with a real assistant that runs on{' '}
+              A TypeScript bot framework built on Baileys, with a real assistant that runs on{' '}
               <strong>your own GPU</strong> and fails over to the cloud automatically. Voice notes it can hear and
               answer in its own voice. Downloads, moderation, scheduling, stickers.
             </p>
@@ -293,7 +293,7 @@ export default function Landing() {
               </a>
             </div>
 
-            <p className="hint">Scan a QR in your browser or type an 8-character pairing code — no terminal logs.</p>
+            <p className="hint">Scan a QR in your browser or type an 8-character pairing code. No terminal logs.</p>
           </div>
 
           <div className="hero-demo">
@@ -325,7 +325,7 @@ export default function Landing() {
           <div className="grid g3">
             <Card icon="brain" title="Nexus, the assistant" delay={0}>
               Conversational AI with persistent memory, timezone awareness and live web search. It can run the bot's
-              own commands for you — ask it to download something and it just does it.
+              own commands for you. Ask it to download something and it just does it.
             </Card>
             <Card icon="wave" title="A voice, not a robot" delay={70}>
               Hears voice notes through Whisper and answers with neural speech. Piper runs offline and free; a local
@@ -337,14 +337,14 @@ export default function Landing() {
             </Card>
             <Card icon="shield" title="Group moderation" delay={0}>
               Antilink, antibot, antidelete, warnings, welcome and goodbye cards, member tools and join-request
-              approvals — with admin checks enforced at dispatch.
+              approvals, with admin checks enforced at dispatch.
             </Card>
             <Card icon="eye" title="It can see" delay={70}>
               Reply to a photo and ask what is in it. Reverse image search, OCR, document reading, background removal
               and image generation are one command away.
             </Card>
             <Card icon="clock" title="Runs on schedule" delay={140}>
-              Cron-backed scheduled messages, birthday reminders, presence tracking and auto-status viewing — all
+              Cron-backed scheduled messages, birthday reminders, presence tracking and auto-status viewing. All
               armed the moment the socket connects.
             </Card>
           </div>
@@ -355,7 +355,7 @@ export default function Landing() {
         <div className="wrap">
           <SectionHead eyebrow="The menu" title="One prefix. Everything under it.">
             Owner-only commands stay hidden from the public menu. Change the prefix at runtime with{' '}
-            <code>.setprefix</code> — no restart, the regexes recompile live.
+            <code>.setprefix</code>. No restart, the regexes recompile live.
           </SectionHead>
 
           {/* Each group is a bordered card so an uneven number of commands wraps
@@ -394,7 +394,7 @@ export default function Landing() {
               </>
             }
           >
-            Nexus tries each tier in order and drops to the next the moment one is unreachable — mid-conversation,
+            Nexus tries each tier in order and drops to the next the moment one is unreachable, mid conversation,
             without a restart, without you noticing.
           </SectionHead>
 
@@ -404,7 +404,7 @@ export default function Landing() {
             <div className="card wide">
               <h3>Search without a key</h3>
               <p>
-                DuckDuckGo is the default engine — no signup, no key, no quota. Point <code>NEXUS_SEARCH_ENGINE</code>{' '}
+                DuckDuckGo is the default engine. No signup, no key, no quota. Point <code>NEXUS_SEARCH_ENGINE</code>{' '}
                 at Tavily or Brave for higher-quality results, or at Groq's compound model for built-in live search.
               </p>
             </div>
@@ -468,7 +468,7 @@ export default function Landing() {
         <div className="wrap setup-grid">
           <div className="setup-aside">
             <SectionHead eyebrow="Get running" title="Working bot in ten minutes.">
-              Set it up in stages. After each one you have a bot that runs — only move on once the current stage works.
+              Set it up in stages. After each one you have a bot that runs. Only move on once the current stage works.
             </SectionHead>
             <Reveal delay={100}>
               <a className="btn btn-primary" href="/link">
@@ -496,7 +496,7 @@ export default function Landing() {
 
       <footer>
         <div className="wrap">
-          <span>Nexus-MD — MIT licensed. Built with Baileys and TypeScript.</span>
+          <span>Nexus-MD, MIT licensed. Built with Baileys and TypeScript.</span>
           <span>
             <a href="/link">Link device</a> · <a href="#setup">Setup</a> · <a href="#features">Features</a>
           </span>
