@@ -165,6 +165,8 @@ interface Health {
 
 export default function Landing() {
   const [health, setHealth] = useState<Health | null>(null);
+  /** Whether the health probe has finished, however it finished. */
+  const [probed, setProbed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const scrolled = useScrolled();
   const progressRef = useScrollProgress<HTMLSpanElement>();
@@ -179,7 +181,8 @@ export default function Landing() {
       // `online` field, and reading `undefined` as "not linked" made a linked
       // bot advertise itself as unlinked on its own front page.
       .then((d: Partial<Health>) => setHealth(typeof d?.online === 'boolean' ? (d as Health) : null))
-      .catch(() => setHealth(null));
+      .catch(() => setHealth(null))
+      .finally(() => setProbed(true));
   }, []);
 
   // Escape closes the mobile menu, and so does growing the window past the
@@ -254,10 +257,19 @@ export default function Landing() {
       <section className="hero">
         <div className="wrap hero-grid">
           <div className="hero-copy">
-            <div className="status-pill">
-              <span className={`dot ${health?.online ? 'live' : health ? 'warn' : ''}`} />
-              {health ? (health.online ? `${bot} is online and linked` : `${bot} is running — not linked yet`) : 'checking status…'}
-            </div>
+            {/*
+              Three states, not two. The pill is only meaningful when something
+              answered for a BOT; on the hosting platform's own front page there
+              is no bot to report on, and a permanent "checking status…" reads as
+              a page that never finished loading. Once the probe has come back
+              empty, say nothing rather than something vague.
+            */}
+            {(health || !probed) && (
+              <div className="status-pill">
+                <span className={`dot ${health?.online ? 'live' : health ? 'warn' : ''}`} />
+                {health ? (health.online ? `${bot} is online and linked` : `${bot} is running — not linked yet`) : 'checking status…'}
+              </div>
+            )}
 
             <h1>
               <span className="l1">The WhatsApp bot</span>
