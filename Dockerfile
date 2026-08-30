@@ -3,7 +3,8 @@ FROM ghcr.io/christiannimb/nexus-md-base:1
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN PUPPETEER_SKIP_DOWNLOAD=1 npm install --omit=dev --no-audit --no-fund
+RUN PUPPETEER_SKIP_DOWNLOAD=1 npm install --omit=dev --no-audit --no-fund \
+      --fetch-retries=5 --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=120000
 
 COPY . .
 
