@@ -1,0 +1,17 @@
+# Netscape HTTP Cookie File
+#
+# YouTube cookies for yt-dlp. Optional — YouTube downloads work without this
+# until a host gets flagged with "Sign in to confirm you're not a bot", at which
+# point yt-dlp needs a logged-in session to keep working.
+#
+# docker-compose.yml bind-mounts ./cookies.txt into the container. Docker
+# creates a DIRECTORY at that path if the file is missing, which breaks the
+# mount — so copy this file before your first `docker compose up`:
+#
+#     cp cookies.txt.example cookies.txt
+#
+# An empty file is fine. To populate it, export cookies for youtube.com from a
+# browser where you're signed in (any "Netscape HTTP Cookie File" exporter), or
+# run:  yt-dlp --cookies-from-browser chrome --cookies cookies.txt
+#
+# NEVER commit the filled-in cookies.txt — .gitignore already excludes it.

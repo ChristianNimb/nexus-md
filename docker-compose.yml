@@ -1,0 +1,42 @@
+services:
+  nexus:
+    build: .
+    container_name: nexus-md
+    restart: unless-stopped
+
+    env_file: .env
+
+  
+    ports:
+      - "3000:3000"
+
+    environment:
+      SESSION_DIR: session
+      DB_PATH: data/nexus.json
+      COBALT_API_URL: http://cobalt:9000/
+      YTDLP_COOKIES: /app/cookies.txt
+
+   
+    volumes:
+      - ./session:/app/session
+      - ./data:/app/data
+      - ./cookies.txt:/app/cookies.txt:ro
+      - ./src:/app/src
+
+    stdin_open: true
+    tty: true
+
+    depends_on:
+      - cobalt
+
+  cobalt:
+    image: ghcr.io/imputnet/cobalt:11
+    init: true
+    read_only: true
+    restart: unless-stopped
+    container_name: cobalt
+    environment:
+
+      API_URL: "http://cobalt:9000/"
+     
+      

@@ -1,0 +1,3 @@
+lib/** linguist-vendored=false
+lib/** linguist-generated=false
+lib/_core/core.js linguist-generated=true
