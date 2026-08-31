@@ -132,6 +132,3 @@ Every option is documented in [`.env.example`](.env.example). The ones that matt
 - Running a bot on your personal number carries a ban risk. WhatsApp does not permit
   unofficial clients; use an account you can afford to lose.
 
-## License
-
-MIT — see [LICENSE](LICENSE).
