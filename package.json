@@ -31,8 +31,8 @@
   "dependencies": {
     "@distube/ytdl-core": "^4.16.12",
     "@hapi/boom": "^10.0.1",
-    "@nexus21/nexus-api": "1.1.10",
     "@napi-rs/canvas": "^0.1.65",
+    "@nexus21/nexus-api": "1.1.10",
     "audio-decode": "^2.2.3",
     "axios": "^1.7.7",
     "baileys": "^6.7.0",
@@ -40,7 +40,8 @@
     "node-cron": "^3.0.3",
     "pino": "^9.4.0",
     "qrcode-terminal": "^0.12.0",
-    "youtube-sr": "^4.3.11"
+    "youtube-sr": "^4.3.11",
+    "youtubei.js": "^18.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.7.0",
